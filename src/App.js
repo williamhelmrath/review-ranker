@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useEffect } from "react";
+import TextField from "@material-ui/core/TextField";
+import firebase from "./firebase";
+
+const db = firebase.firestore();
 
 function App() {
+  useEffect(() => {
+    db.collection("users")
+      .get()
+      .then((res) => console.log(res));
+  });
+
   return (
-    <div style={{ textAlign: 'center' }}>
-      <header>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
+    <div style={{ textAlign: "center" }}>
+      <TextField label="Search" />
     </div>
   );
 }
