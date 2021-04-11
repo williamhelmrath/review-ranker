@@ -19,6 +19,7 @@ function App() {
       style={{ textAlign: "center", display: "flex", flexDirection: "column" }}
     >
       <TextField label="Search" onChange={handleChange} value={word} />
+      This is an awesome review ranker!
       {word}
     </div>
   );
