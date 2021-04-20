@@ -1,28 +1,35 @@
-import React, { useEffect, useState } from "react";
-import TextField from "@material-ui/core/TextField";
-import firebase from "./firebase";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
-const db = firebase.firestore();
+import Login from "./components/Login";
+import Main from "./components/Main";
 
-function App() {
-  const [word, setWord] = useState("");
-  useEffect(() => {
-    db.collection("users")
-      .get()
-      .then((res) => console.log(res));
-  });
-
-  const handleChange = (event) => setWord(event.target.value);
-
+export default function App() {
   return (
-    <div
-      style={{ textAlign: "center", display: "flex", flexDirection: "column" }}
-    >
-      <TextField label="Search" onChange={handleChange} value={word} />
-      This is an awesome review ranker!
-      {word}
-    </div>
+    <Router>
+      <div>
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <Main />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
 
-export default App;
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function Users() {
+  return <h2>Users</h2>;
+}
