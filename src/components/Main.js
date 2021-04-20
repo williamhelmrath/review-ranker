@@ -261,8 +261,6 @@ export default function FullWidthTabs() {
                     }}
                     size="small"
                     color="primary"
-                    size="small"
-                    color="primary"
                   >
                     View Pants
                   </Button>
@@ -298,8 +296,6 @@ export default function FullWidthTabs() {
                     }}
                     size="small"
                     color="primary"
-                    size="small"
-                    color="primary"
                   >
                     View Suits
                   </Button>
@@ -333,8 +329,6 @@ export default function FullWidthTabs() {
                       setcurrArray(menShoes);
                       setOpen(true);
                     }}
-                    size="small"
-                    color="primary"
                     size="small"
                     color="primary"
                   >
@@ -376,8 +370,6 @@ export default function FullWidthTabs() {
                     }}
                     size="small"
                     color="primary"
-                    size="small"
-                    color="primary"
                   >
                     View Jackets
                   </Button>
@@ -417,8 +409,6 @@ export default function FullWidthTabs() {
                     }}
                     size="small"
                     color="primary"
-                    size="small"
-                    color="primary"
                   >
                     View Shirts
                   </Button>
@@ -452,8 +442,6 @@ export default function FullWidthTabs() {
                       setcurrArray(womenPants);
                       setOpen(true);
                     }}
-                    size="small"
-                    color="primary"
                     size="small"
                     color="primary"
                   >
@@ -491,8 +479,6 @@ export default function FullWidthTabs() {
                     }}
                     size="small"
                     color="primary"
-                    size="small"
-                    color="primary"
                   >
                     View Suits
                   </Button>
@@ -526,8 +512,6 @@ export default function FullWidthTabs() {
                       setcurrArray(womenShoes);
                       setOpen(true);
                     }}
-                    size="small"
-                    color="primary"
                     size="small"
                     color="primary"
                   >
