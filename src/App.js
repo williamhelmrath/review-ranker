@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Login from "./components/Login";
 import Main from "./components/Main";
 
 export default function App() {
+  const [user, setUser] = useState(null);
   return (
     <Router>
       <div>
@@ -12,11 +13,9 @@ export default function App() {
             renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/login">
-            <Login />
+            <Login setUser={setUser} />
           </Route>
-          <Route path="/users">
-            <Users />
-          </Route>
+
           <Route path="/">
             <Main />
           </Route>

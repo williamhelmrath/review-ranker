@@ -1,18 +1,17 @@
-import React from "react";
 import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import React, { useState } from "react";
+import { useHistory } from "react-router";
+import firebase from "../firebase";
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -55,9 +54,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignInSide() {
+export default function SignInSide({ setUser }) {
   const classes = useStyles();
-
+  const history = useHistory();
+  const [userID, setUserID] = useState("");
+  const fetchUser = async (userID) => {
+    const doc = await firebase
+      .firestore()
+      .collection("users")
+      .doc(userID)
+      .get();
+    return doc;
+  };
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -70,33 +78,37 @@ export default function SignInSide() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <form className={classes.form} noValidate>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+
+              fetchUser(userID).then((doc) => {
+                if (doc.exists) {
+                  setUser(doc.data());
+                  history.push("/");
+                } else {
+                  setUserID("");
+                }
+              });
+            }}
+            className={classes.form}
+            noValidate
+          >
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="reviewerID"
+              label="Reviewer ID"
+              name="reviewerID"
               autoFocus
+              value={userID}
+              onChange={(e) => {
+                setUserID(e.target.value);
+              }}
             />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+
             <Button
               type="submit"
               fullWidth
@@ -106,18 +118,7 @@ export default function SignInSide() {
             >
               Sign In
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
+
             <Box mt={5}>
               <Copyright />
             </Box>
