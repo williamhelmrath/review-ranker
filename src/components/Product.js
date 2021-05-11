@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { useParams } from "react-router";
 import firebase from "../firebase";
 import {
   CircularProgress,
@@ -11,12 +10,10 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  IconButton,
 } from "@material-ui/core";
 import Review from "./Review";
 
 export default function Product({ user, setUser }) {
-  const history = useHistory();
   const { asin } = useParams();
   const [productInfo, setProductInfo] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -99,10 +96,6 @@ export default function Product({ user, setUser }) {
       });
   }, [asin, user]);
 
-  const handleGoBack = () => {
-    history.push("/");
-  };
-
   if (!productInfo) {
     return (
       <div
@@ -128,12 +121,6 @@ export default function Product({ user, setUser }) {
         padding: "0 20px",
       }}
     >
-      <IconButton
-        onClick={handleGoBack}
-        style={{ position: "absolute", top: 0, left: 0 }}
-      >
-        <ArrowBackIcon />
-      </IconButton>
       {user && (
         <TableContainer>
           <Table>
