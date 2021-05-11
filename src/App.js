@@ -1,22 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Login from "./components/Login";
 import Main from "./components/Main";
+import ProductPage from "./components/Product";
 
 export default function App() {
+  const [user, setUser] = useState(null);
   return (
     <Router>
       <div>
         {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
         <Switch>
+          <Route path="/products/:asin">
+            <ProductPage user={user} setUser={setUser} />
+          </Route>
           <Route path="/login">
-            <Login />
+            <Login setUser={setUser} />
           </Route>
-          <Route path="/users">
-            <Users />
-          </Route>
+
           <Route path="/">
             <Main />
           </Route>
@@ -24,8 +27,4 @@ export default function App() {
       </div>
     </Router>
   );
-}
-
-function Users() {
-  return <h2>Users</h2>;
 }
