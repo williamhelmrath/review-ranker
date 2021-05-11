@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import firebase from "../firebase";
 import {
   CircularProgress,
@@ -13,8 +12,8 @@ import {
   TableCell,
   TableBody,
   IconButton,
-  Button,
 } from "@material-ui/core";
+import Review from "./Review";
 
 export default function Product({ user, setUser }) {
   const history = useHistory();
@@ -61,6 +60,8 @@ export default function Product({ user, setUser }) {
         .update({ word_rank: oldFreq });
       // update user profile
       setUser({ ...user, word_rank: oldFreq });
+    } else {
+      alert("You must be logged in to mark a review as 'helpful'");
     }
   };
 
@@ -133,7 +134,6 @@ export default function Product({ user, setUser }) {
       >
         <ArrowBackIcon />
       </IconButton>
-      <Typography variant="h3">{productInfo.asin}</Typography>
       {user && (
         <TableContainer>
           <Table>
@@ -155,32 +155,11 @@ export default function Product({ user, setUser }) {
         </TableContainer>
       )}
       <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
-        Top ranked reviews
+        Top ranked reviews for {productInfo.asin}
       </Typography>
       {reviews.map((review) => (
-        <Review review={review} tokenize={tokenize} />
+        <Review review={review} tokenize={tokenize} key={review.reviewerID} />
       ))}
     </div>
   );
 }
-
-const Review = ({ review, tokenize }) => {
-  const handleHelpful = () => {
-    console.log("increment counts in user word rank");
-  };
-
-  return (
-    <div style={{ width: "100%", padding: "5vh" }} key={review.reviewerID}>
-      <div style={{ display: "flex" }}>
-        <AccountCircleIcon />{" "}
-        <Typography style={{ marginLeft: "10px" }}>
-          <b>Reviewed by {review.reviewerID}</b>
-        </Typography>
-      </div>
-      <Typography>{review.reviewText}</Typography>
-      <Button variant="outlined" onClick={handleHelpful}>
-        Helpful
-      </Button>
-    </div>
-  );
-};
