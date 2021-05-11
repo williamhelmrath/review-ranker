@@ -14,7 +14,7 @@ export default function App() {
             renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/products/:asin">
-            <ProductPage user={user} />
+            <ProductPage user={user} setUser={setUser} />
           </Route>
           <Route path="/login">
             <Login setUser={setUser} />

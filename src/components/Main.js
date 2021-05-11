@@ -25,6 +25,9 @@ export default function FullWidthTabs() {
           docData.push(doc.data());
         });
         setProducts(docData);
+      })
+      .catch(() => {
+        console.error("products fetch error");
       });
   }, []);
   return (

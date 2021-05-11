@@ -16,12 +16,54 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Button,
 } from "@material-ui/core";
-export default function ProductPage({ user }) {
+export default function ProductPage({ user, setUser }) {
   const { asin } = useParams();
   const classes = useStyles();
   const [productInfo, setProductInfo] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const tokenize = async (review) => {
+    if (user !== null) {
+      const resp = await fetch(
+        "http://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
+        {
+          method: "POST",
+          mode: "cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          body: JSON.stringify({
+            asin: review.asin,
+            reviewerID: review.reviewerID,
+            reviewText: review.reviewText[0],
+          }), // body data type must match "Content-Type" header
+        }
+      );
+      const tokenizedReview = await resp.json();
+      const oldFreq = { ...user.word_rank };
+      for (let word in tokenizedReview.frequencyMap) {
+        if (oldFreq[word]) {
+          oldFreq[word] += tokenizedReview.frequencyMap[word];
+        } else {
+          oldFreq[word] = tokenizedReview.frequencyMap[word];
+        }
+      }
+      // update on firestore
+      await firebase
+        .firestore()
+        .collection("users")
+        .doc(user.reviewerID)
+        .update({ word_rank: oldFreq });
+      // update user profile
+      setUser({ ...user, word_rank: oldFreq });
+    }
+  };
   useEffect(() => {
     firebase
       .firestore()
@@ -34,12 +76,14 @@ export default function ProductPage({ user }) {
           setReviews(doc.data().reviews);
         } else {
           // this isn't solr itself, but the FastAPI proxy
-          const solrURL = new URL("http://localhost:8000/solr");
+          const solrURL = new URL(
+            "http://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
+          );
           solrURL.searchParams.append("fq", `asin:${doc.data().asin}`);
 
           const words = [];
           for (let word in user.word_rank) {
-            words.push(word);
+            words.push(`${word}`);
           }
           let term = words.join("||");
           solrURL.searchParams.append("q", `reviewText:${term}`);
@@ -89,6 +133,15 @@ export default function ProductPage({ user }) {
                   return (
                     <ListItem key={review.reviewerID}>
                       <ListItemText>{review.reviewText}</ListItemText>
+                      {user ? (
+                        <Button
+                          onClick={() => {
+                            tokenize(review);
+                          }}
+                        >
+                          Helpful
+                        </Button>
+                      ) : null}
                     </ListItem>
                   );
                 })}
