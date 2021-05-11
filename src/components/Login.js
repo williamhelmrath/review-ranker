@@ -10,6 +10,7 @@ import { useHistory } from "react-router";
 import { useForm } from "react-hook-form";
 import firebase from "../firebase";
 import { CircularProgress } from "@material-ui/core";
+import { useUserContext } from "../UserProvider";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,7 +33,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login({ setUser }) {
+export default function Login() {
+  const { setUser } = useUserContext();
+
   const classes = useStyles();
   const history = useHistory();
 

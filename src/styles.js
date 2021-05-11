@@ -2,10 +2,11 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    marginTop: "2vh",
+    paddingTop: "2vh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    minHeight: "94vh",
   },
   card: {
     maxWidth: 345,
@@ -30,6 +31,6 @@ const useStyles = makeStyles((theme) => ({
     background:
       "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)",
   },
-  headerLink: { color: "white", marginLeft: "1vw" },
+  headerLink: { color: "white", marginLeft: "2vw" },
 }));
 export default useStyles;

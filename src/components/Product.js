@@ -12,54 +12,52 @@ import {
   TableBody,
 } from "@material-ui/core";
 import Review from "./Review";
+import { useUserContext } from "../UserProvider";
 
-export default function Product({ user, setUser }) {
+export default function Product() {
+  const { user, setUser } = useUserContext();
   const { asin } = useParams();
   const [productInfo, setProductInfo] = useState(null);
   const [reviews, setReviews] = useState([]);
 
   const tokenize = async (review) => {
-    if (user !== null) {
-      const resp = await fetch(
-        "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
-        {
-          method: "POST",
-          mode: "cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          body: JSON.stringify({
-            asin: review.asin,
-            reviewerID: review.reviewerID,
-            reviewText: review.reviewText[0],
-          }), // body data type must match "Content-Type" header
-        }
-      );
-      const tokenizedReview = await resp.json();
-      const oldFreq = { ...user.word_rank };
-      for (let word in tokenizedReview.frequencyMap) {
-        if (oldFreq[word]) {
-          oldFreq[word] += tokenizedReview.frequencyMap[word];
-        } else {
-          oldFreq[word] = tokenizedReview.frequencyMap[word];
-        }
+    const resp = await fetch(
+      "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
+      {
+        method: "POST",
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify({
+          asin: review.asin,
+          reviewerID: review.reviewerID,
+          reviewText: review.reviewText[0],
+        }), // body data type must match "Content-Type" header
       }
-      // update on firestore
-      await firebase
-        .firestore()
-        .collection("users")
-        .doc(user.reviewerID)
-        .update({ word_rank: oldFreq });
-      // update user profile
-      setUser({ ...user, word_rank: oldFreq });
-    } else {
-      alert("You must be logged in to mark a review as 'helpful'");
+    );
+    const tokenizedReview = await resp.json();
+    const oldFreq = { ...user.word_rank };
+    for (let word in tokenizedReview.frequencyMap) {
+      if (oldFreq[word]) {
+        oldFreq[word] += tokenizedReview.frequencyMap[word];
+      } else {
+        oldFreq[word] = tokenizedReview.frequencyMap[word];
+      }
     }
+    // update on firestore
+    await firebase
+      .firestore()
+      .collection("users")
+      .doc(user.reviewerID)
+      .update({ word_rank: oldFreq });
+    // update user profile
+    setUser({ ...user, word_rank: oldFreq });
   };
 
   useEffect(() => {
