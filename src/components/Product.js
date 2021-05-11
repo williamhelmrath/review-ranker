@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import useStyles from "../styles";
+import { useHistory, useParams } from "react-router";
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import firebase from "../firebase";
 import {
   CircularProgress,
-  Grid,
-  ListItem,
-  ListItemText,
-  Paper,
   Typography,
-  List,
   Table,
   TableContainer,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
+  IconButton,
+  Button,
 } from "@material-ui/core";
-export default function ProductPage({ user }) {
+
+export default function Product({ user }) {
+  const history = useHistory();
   const { asin } = useParams();
-  const classes = useStyles();
   const [productInfo, setProductInfo] = useState(null);
   const [reviews, setReviews] = useState([]);
+
   useEffect(() => {
     firebase
       .firestore()
@@ -34,8 +34,11 @@ export default function ProductPage({ user }) {
           setReviews(doc.data().reviews);
         } else {
           // this isn't solr itself, but the FastAPI proxy
-          const solrURL = new URL("http://localhost:8000/solr");
-          solrURL.searchParams.append("fq", `asin:${doc.data().asin}`);
+          const solrURL = new URL(
+            "http://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
+          );
+
+          solrURL.searchParams.append("fq", `asin:${asin}`);
 
           const words = [];
           for (let word in user.word_rank) {
@@ -44,59 +47,98 @@ export default function ProductPage({ user }) {
           let term = words.join("||");
           solrURL.searchParams.append("q", `reviewText:${term}`);
           fetch(solrURL)
-            .then((resp) => {
-              return resp.json();
-            })
+            .then((resp) => resp.json())
             .then((revObj) => {
               setReviews(revObj.response.docs);
-            });
+            })
+            .catch((error) => console.log(error));
         }
       });
   }, [asin, user]);
+
+  const handleGoBack = () => {
+    history.push("/");
+  };
+
+  if (!productInfo) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
-    <div className={classes.root}>
-      <Grid container alignItems="center">
-        <Grid item align="center">
-          {productInfo === null ? (
-            <CircularProgress />
-          ) : (
-            <Paper>
-              <Typography variant="h1">{productInfo.asin}</Typography>
-              {user === null ? null : (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>word</TableCell>
-                        <TableCell>frequency</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {Object.entries(user.word_rank).map(([key, value]) => {
-                        return (
-                          <TableRow key={key}>
-                            <TableCell>{key}</TableCell>
-                            <TableCell>{value}</TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-              <List>
-                {reviews.map((review) => {
-                  return (
-                    <ListItem key={review.reviewerID}>
-                      <ListItemText>{review.reviewText}</ListItemText>
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </Paper>
-          )}
-        </Grid>
-      </Grid>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        maxWidth: "1100px",
+        margin: "20px auto",
+        padding: "0 20px",
+      }}
+    >
+      <IconButton
+        onClick={handleGoBack}
+        style={{ position: "absolute", top: 0, left: 0 }}
+      >
+        <ArrowBackIcon />
+      </IconButton>
+      <Typography variant="h3">{productInfo.asin}</Typography>
+      {user && (
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>word</TableCell>
+                <TableCell>frequency</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.entries(user.word_rank).map(([key, value]) => (
+                <TableRow key={key}>
+                  <TableCell>{key}</TableCell>
+                  <TableCell>{value}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
+        Top ranked reviews
+      </Typography>
+      {reviews.map((review) => (
+        <Review review={review} />
+      ))}
     </div>
   );
 }
+
+const Review = ({ review }) => {
+  const handleHelpful = () => {
+    console.log("increment counts in user word rank");
+  };
+
+  return (
+    <div style={{ width: "100%", padding: "5vh" }} key={review.reviewerID}>
+      <div style={{ display: "flex" }}>
+        <AccountCircleIcon />{" "}
+        <Typography style={{ marginLeft: "10px" }}>
+          <b>Reviewed by {review.reviewerID}</b>
+        </Typography>
+      </div>
+      <Typography>{review.reviewText}</Typography>
+      <Button variant="outlined" onClick={handleHelpful}>
+        Helpful
+      </Button>
+    </div>
+  );
+};
