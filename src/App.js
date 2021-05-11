@@ -1,5 +1,5 @@
-import { CssBaseline } from "@material-ui/core";
 import React, { useState } from "react";
+import { CssBaseline } from "@material-ui/core";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import Login from "./components/Login";
@@ -14,7 +14,7 @@ export default function App() {
       <CssBaseline />
       <Switch>
         <Route path="/products/:asin">
-          <ProductPage user={user} />
+          <ProductPage user={user} setUser={setUser} />
         </Route>
         <Route exact path="/login">
           <Login setUser={setUser} />

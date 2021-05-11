@@ -24,6 +24,9 @@ export default function Main() {
         const docData = [];
         docs.forEach((doc) => docData.push(doc.data()));
         setProducts(docData);
+      })
+      .catch(() => {
+        console.error("products fetch error");
       });
   }, []);
 
