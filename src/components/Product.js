@@ -21,7 +21,7 @@ export default function Product({ user, setUser }) {
   const tokenize = async (review) => {
     if (user !== null) {
       const resp = await fetch(
-        "http://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
+        "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
         {
           method: "POST",
           mode: "cors", // no-cors, *cors, same-origin
@@ -75,7 +75,7 @@ export default function Product({ user, setUser }) {
         } else {
           // this isn't solr itself, but the FastAPI proxy
           const solrURL = new URL(
-            "http://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
+            "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
           );
 
           solrURL.searchParams.append("fq", `asin:${doc.data().asin}`);
