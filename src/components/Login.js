@@ -1,42 +1,18 @@
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
-import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import React, { useState } from "react";
 import { useHistory } from "react-router";
+import { useForm } from "react-hook-form";
 import firebase from "../firebase";
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import { CircularProgress } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100vh",
-  },
-  image: {
-    backgroundImage:
-      "url(https://images.unsplash.com/photo-1513094735237-8f2714d57c13?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1275&q=80)",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "contain",
-  },
   paper: {
-    margin: theme.spacing(8, 4),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -46,18 +22,31 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "30vw",
     marginTop: theme.spacing(1),
+    display: "flex",
+    flexDirection: "column",
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
 }));
 
-export default function SignInSide({ setUser }) {
+export default function Login({ setUser }) {
   const classes = useStyles();
   const history = useHistory();
-  const [userID, setUserID] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
+
   const fetchUser = async (userID) => {
     const doc = await firebase
       .firestore()
@@ -66,65 +55,52 @@ export default function SignInSide({ setUser }) {
       .get();
     return doc;
   };
+
+  const handleFormSubmit = async ({ username }) => {
+    setLoading(true);
+    fetchUser(username).then((doc) => {
+      if (doc.exists) {
+        setUser(doc.data());
+        history.push("/");
+      } else {
+        setLoading(false);
+        alert("That user doesn't exist");
+      }
+    });
+  };
+
   return (
-    <Grid container component="main" className={classes.root}>
-      <CssBaseline />
-      <Grid item xs={false} sm={false} md={5} className={classes.image} />
-      <Grid item xs={12} sm={12} md={7} component={Paper} elevation={6} square>
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
+    <Box className={classes.paper}>
+      <Avatar className={classes.avatar}>
+        <LockOutlinedIcon />
+      </Avatar>
+      <Typography component="h1" variant="h5">
+        Login
+      </Typography>
 
-              fetchUser(userID).then((doc) => {
-                if (doc.exists) {
-                  setUser(doc.data());
-                  history.push("/");
-                } else {
-                  setUserID("");
-                }
-              });
-            }}
-            className={classes.form}
-            noValidate
-          >
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="reviewerID"
-              label="Reviewer ID"
-              name="reviewerID"
-              autoFocus
-              value={userID}
-              onChange={(e) => {
-                setUserID(e.target.value);
-              }}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Sign In
-            </Button>
-
-            <Box mt={5}>
-              <Copyright />
-            </Box>
-          </form>
-        </div>
-      </Grid>
-    </Grid>
+      <form
+        className={classes.form}
+        onSubmit={handleSubmit((data) => handleFormSubmit(data))}
+      >
+        <TextField
+          variant="outlined"
+          margin="normal"
+          label="Username"
+          name="username"
+          {...register("username", { required: true })}
+          error={!!errors.username}
+          helperText={!!errors.username && "Please enter a username"}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+          style={{ minHeight: 50 }}
+        >
+          {loading ? <CircularProgress color="secondary" /> : "Go"}
+        </Button>
+      </form>
+    </Box>
   );
 }
