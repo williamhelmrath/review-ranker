@@ -9,26 +9,50 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import firebase from "../firebase";
 import useStyles from "../styles";
 
+const db = firebase.firestore();
+
 export default function Main() {
   const classes = useStyles();
   const history = useHistory();
   const [products, setProducts] = useState(null);
+  const [lastKey, setLastKey] = useState("");
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection("products")
+    db.collection("products")
+      .orderBy("asin")
       .limit(10)
       .get()
       .then((docs) => {
         const docData = [];
-        docs.forEach((doc) => docData.push(doc.data()));
+        docs.forEach((doc) => {
+          docData.push(doc.data());
+        });
+        setLastKey(docData[docData.length - 1].asin);
         setProducts(docData);
       })
       .catch(() => {
         console.error("products fetch error");
       });
   }, []);
+
+  const getMoreProducts = () => {
+    db.collection("products")
+      .orderBy("asin")
+      .startAfter(lastKey)
+      .limit(10)
+      .get()
+      .then((docs) => {
+        const docData = [];
+        docs.forEach((doc) => {
+          docData.push(doc.data());
+        });
+        setLastKey(docData[docData.length - 1].asin);
+        setProducts((prevState) => [...prevState, ...docData]);
+      })
+      .catch(() => {
+        console.error("products fetch error");
+      });
+  };
 
   if (!products) {
     return (
@@ -71,6 +95,14 @@ export default function Main() {
           </Grid>
         ))}
       </Grid>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={getMoreProducts}
+        style={{ marginBottom: "3vh", height: "6vh" }}
+      >
+        Get more products
+      </Button>
     </div>
   );
 }

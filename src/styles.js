@@ -2,6 +2,10 @@ import { makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
+    marginTop: "2vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   card: {
     maxWidth: 345,
