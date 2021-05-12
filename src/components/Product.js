@@ -12,8 +12,13 @@ import {
   TableBody,
 } from "@material-ui/core";
 import Review from "./Review";
+
 const solrBaseURL = process.env.REACT_APP_solrURL;
-export default function Product({ user, setUser }) {
+
+import { useUserContext } from "../UserProvider";
+
+export default function Product() {
+  const { user, setUser } = useUserContext();
   const { asin } = useParams();
   const [productInfo, setProductInfo] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -73,6 +78,14 @@ export default function Product({ user, setUser }) {
     } else {
       alert("You must be logged in to mark a review as 'helpful'");
     }
+    // update on firestore
+    await firebase
+      .firestore()
+      .collection("users")
+      .doc(user.reviewerID)
+      .update({ word_rank: oldFreq });
+    // update user profile
+    setUser({ ...user, word_rank: oldFreq });
   };
 
   useEffect(() => {
@@ -83,12 +96,12 @@ export default function Product({ user, setUser }) {
       .get()
       .then((doc) => {
         setProductInfo(doc.data());
-        if (user === null) {
+        if (!user) {
           setReviews(doc.data().reviews);
         } else {
           // this isn't solr itself, but the FastAPI proxy
-          const solrQueryURL = new URL(`${solrBaseURL}/solr/reviews/select`);
 
+          const solrQueryURL = new URL(`${solrBaseURL}/solr/reviews/select`);
           solrQueryURL.searchParams.append("fq", `asin:${doc.data().asin}`);
 
           const words = [];
@@ -106,8 +119,12 @@ export default function Product({ user, setUser }) {
             .then((revObj) => {
               setReviews(revObj.response.docs);
             })
-            .catch((error) => console.log(error));
+            .catch((error) => console.error(error));
         }
+      })
+      .catch((error) => {
+        console.error(error);
+        setReviews([]);
       });
   }, [asin, user]);
 
