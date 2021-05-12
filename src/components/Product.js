@@ -21,26 +21,23 @@ export default function Product() {
   const [reviews, setReviews] = useState([]);
 
   const tokenize = async (review) => {
-    const resp = await fetch(
-      "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
-      {
-        method: "POST",
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify({
-          asin: review.asin,
-          reviewerID: review.reviewerID,
-          reviewText: review.reviewText[0],
-        }), // body data type must match "Content-Type" header
-      }
-    );
+    const resp = await fetch(process.env.REACT_APP_solrURL, {
+      method: "POST",
+      mode: "cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      body: JSON.stringify({
+        asin: review.asin,
+        reviewerID: review.reviewerID,
+        reviewText: review.reviewText[0],
+      }), // body data type must match "Content-Type" header
+    });
     const tokenizedReview = await resp.json();
     const oldFreq = { ...user.word_rank };
     for (let word in tokenizedReview.frequencyMap) {
@@ -68,12 +65,12 @@ export default function Product() {
       .get()
       .then((doc) => {
         setProductInfo(doc.data());
-        if (user === null) {
+        if (!user) {
           setReviews(doc.data().reviews);
         } else {
           // this isn't solr itself, but the FastAPI proxy
           const solrURL = new URL(
-            "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
+            process.env.REACT_APP_solrURL + "solr/reviews/select"
           );
 
           solrURL.searchParams.append("fq", `asin:${doc.data().asin}`);
@@ -89,8 +86,12 @@ export default function Product() {
             .then((revObj) => {
               setReviews(revObj.response.docs);
             })
-            .catch((error) => console.log(error));
+            .catch((error) => console.error(error));
         }
+      })
+      .catch((error) => {
+        console.error(error);
+        setReviews([]);
       });
   }, [asin, user]);
 
