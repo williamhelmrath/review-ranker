@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Login() {
-  const { setUser } = useUserContext();
+  const { user, setUser } = useUserContext();
 
   const classes = useStyles();
   const history = useHistory();
@@ -71,6 +71,19 @@ export default function Login() {
       }
     });
   };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
+
+  if (user) {
+    return (
+      <div>
+        You are currently logged in.
+        <Button onClick={handleLogout}>Logout</Button>
+      </div>
+    );
+  }
 
   return (
     <Box className={classes.paper}>
