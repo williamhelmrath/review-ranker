@@ -108,7 +108,11 @@ export default function Product() {
           fetch(solrQueryURL)
             .then((resp) => resp.json())
             .then((revObj) => {
-              setReviews(revObj.response.docs);
+              if (revObj.error) {
+                setReviews(doc.data().reviews);
+              } else {
+                setReviews(revObj.response.docs);
+              }
             })
             .catch((error) => console.error(error));
         }
