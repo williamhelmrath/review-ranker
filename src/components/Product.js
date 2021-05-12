@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import firebase from "../firebase";
-import {
-  CircularProgress,
-  Typography,
-  Table,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-} from "@material-ui/core";
+import { CircularProgress, Typography } from "@material-ui/core";
 import Review from "./Review";
 import { useUserContext } from "../UserProvider";
+import WordRankTable from "./WordRankTable";
 
 const solrBaseURL = process.env.REACT_APP_solrURL;
 
@@ -145,26 +137,7 @@ export default function Product() {
         padding: "0 20px",
       }}
     >
-      {user && (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>word</TableCell>
-                <TableCell>frequency</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.entries(user.word_rank).map(([key, value]) => (
-                <TableRow key={key}>
-                  <TableCell>{key}</TableCell>
-                  <TableCell>{value}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      {user && <WordRankTable />}
       <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
         Top ranked reviews for {productInfo.asin}
       </Typography>
