@@ -97,13 +97,10 @@ export default function Product() {
 
           const words = [];
           for (let word in user.word_rank) {
-            words.push(`${word}`);
+            words.push(`reviewText:${word}^${user.word_rank[word]}`);
           }
-          let term = words.join("||");
-          solrQueryURL.searchParams.append(
-            "q",
-            `(reviewText:${term}) OR reviewText:*`
-          );
+          let term = words.join(" ");
+          solrQueryURL.searchParams.append("q", `${term}`);
 
           fetch(solrQueryURL)
             .then((resp) => resp.json())
