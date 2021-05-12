@@ -12,10 +12,9 @@ import {
   TableBody,
 } from "@material-ui/core";
 import Review from "./Review";
+import { useUserContext } from "../UserProvider";
 
 const solrBaseURL = process.env.REACT_APP_solrURL;
-
-import { useUserContext } from "../UserProvider";
 
 export default function Product() {
   const { user, setUser } = useUserContext();
@@ -78,14 +77,6 @@ export default function Product() {
     } else {
       alert("You must be logged in to mark a review as 'helpful'");
     }
-    // update on firestore
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(user.reviewerID)
-      .update({ word_rank: oldFreq });
-    // update user profile
-    setUser({ ...user, word_rank: oldFreq });
   };
 
   useEffect(() => {
