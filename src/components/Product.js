@@ -12,7 +12,7 @@ import {
   TableBody,
 } from "@material-ui/core";
 import Review from "./Review";
-
+const solrBaseURL = process.env.REACT_APP_solrURL;
 export default function Product({ user, setUser }) {
   const { asin } = useParams();
   const [productInfo, setProductInfo] = useState(null);
@@ -20,26 +20,32 @@ export default function Product({ user, setUser }) {
 
   const tokenize = async (review) => {
     if (user !== null) {
-      const resp = await fetch(
-        "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com",
-        {
-          method: "POST",
-          mode: "cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          body: JSON.stringify({
-            asin: review.asin,
-            reviewerID: review.reviewerID,
-            reviewText: review.reviewText[0],
-          }), // body data type must match "Content-Type" header
+      for (let oldReview of user.reviews) {
+        if (
+          oldReview.asin === review.asin &&
+          oldReview.reviewerID === review.reviewerID
+        ) {
+          return;
         }
-      );
+      }
+
+      const resp = await fetch(`${solrBaseURL}/tokenize`, {
+        method: "POST",
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify({
+          asin: review.asin,
+          reviewerID: review.reviewerID,
+          reviewText: review.reviewText[0],
+        }), // body data type must match "Content-Type" header
+      });
       const tokenizedReview = await resp.json();
       const oldFreq = { ...user.word_rank };
       for (let word in tokenizedReview.frequencyMap) {
@@ -54,9 +60,16 @@ export default function Product({ user, setUser }) {
         .firestore()
         .collection("users")
         .doc(user.reviewerID)
-        .update({ word_rank: oldFreq });
+        .update({
+          word_rank: oldFreq,
+          reviews: firebase.firestore.FieldValue.arrayUnion(review),
+        });
       // update user profile
-      setUser({ ...user, word_rank: oldFreq });
+      setUser({
+        ...user,
+        word_rank: oldFreq,
+        reviews: [...user.reviews, review],
+      });
     } else {
       alert("You must be logged in to mark a review as 'helpful'");
     }
@@ -74,19 +87,21 @@ export default function Product({ user, setUser }) {
           setReviews(doc.data().reviews);
         } else {
           // this isn't solr itself, but the FastAPI proxy
-          const solrURL = new URL(
-            "https://1e26a9604c3eff3b3ae642a766d5a6c0.balena-devices.com/solr/reviews/select"
-          );
+          const solrQueryURL = new URL(`${solrBaseURL}/solr/reviews/select`);
 
-          solrURL.searchParams.append("fq", `asin:${doc.data().asin}`);
+          solrQueryURL.searchParams.append("fq", `asin:${doc.data().asin}`);
 
           const words = [];
           for (let word in user.word_rank) {
             words.push(`${word}`);
           }
           let term = words.join("||");
-          solrURL.searchParams.append("q", `reviewText:${term}`);
-          fetch(solrURL)
+          solrQueryURL.searchParams.append(
+            "q",
+            `(reviewText:${term}) OR reviewText:*`
+          );
+
+          fetch(solrQueryURL)
             .then((resp) => resp.json())
             .then((revObj) => {
               setReviews(revObj.response.docs);

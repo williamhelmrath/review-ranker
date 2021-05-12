@@ -12,8 +12,8 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
-if (window.location.hostname === "localhost") {
+const isDebug = process.env.REACT_APP_firestoreDebug;
+if (isDebug) {
   console.info("using emulator");
   firebase.firestore().useEmulator("localhost", 8080);
 }
