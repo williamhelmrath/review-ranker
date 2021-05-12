@@ -27,7 +27,7 @@ export default function Product() {
 
       const resp = await fetch(`${solrBaseURL}/tokenize`, {
         method: "POST",
-        mode: "no-cors", // no-cors, *cors, same-origin
+        mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "same-origin", // include, *same-origin, omit
         headers: {
@@ -42,6 +42,7 @@ export default function Product() {
           reviewText: review.reviewText[0],
         }), // body data type must match "Content-Type" header
       });
+
       const tokenizedReview = await resp.json();
       const oldFreq = { ...user.word_rank };
       for (let word in tokenizedReview.frequencyMap) {
