@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import { Typography, Button } from "@material-ui/core";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import { useUserContext } from "../UserProvider";
 
 export default function Review({ review, tokenize }) {
+  const { user } = useUserContext();
   const [clicked, setClicked] = useState(false);
 
   const handleClick = () => {
-    setClicked(true);
-    tokenize(review);
+    if (user) {
+      setClicked(true);
+      tokenize(review);
+    } else {
+      alert("You must be logged in to mark a review as 'helpful'");
+    }
   };
 
   return (

@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import Avatar from "@material-ui/core/Avatar";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
-import { makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { useHistory } from "react-router";
 import { useForm } from "react-hook-form";
+import {
+  CircularProgress,
+  Avatar,
+  Box,
+  Button,
+  TextField,
+  Typography,
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import firebase from "../firebase";
-import { CircularProgress } from "@material-ui/core";
+import { useUserContext } from "../UserProvider";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,7 +35,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Login({ setUser }) {
+export default function Login() {
+  const { user, setUser } = useUserContext();
+
   const classes = useStyles();
   const history = useHistory();
 
@@ -68,6 +73,29 @@ export default function Login({ setUser }) {
       }
     });
   };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
+
+  if (user) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        paddingTop="3vh"
+      >
+        <Typography variant="h3" style={{ marginBottom: "2vh" }}>
+          {" "}
+          You are currently logged in.
+        </Typography>
+        <Button variant="outlined" color="secondary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box className={classes.paper}>
