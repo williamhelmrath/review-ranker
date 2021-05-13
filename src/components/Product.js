@@ -84,7 +84,7 @@ export default function Product() {
         } else {
           // this isn't solr itself, but the FastAPI proxy
 
-          const solrQueryURL = new URL(`${solrBaseURL}/solr/reviews/select`);
+          const solrQueryURL = new URL(`${solrBaseURL}solr/reviews/select`);
           solrQueryURL.searchParams.append("fq", `asin:${doc.data().asin}`);
 
           const words = [];
