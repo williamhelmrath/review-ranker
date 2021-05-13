@@ -21,7 +21,10 @@ export default function Review({ review, tokenize }) {
       <div style={{ display: "flex" }}>
         <AccountCircleIcon />{" "}
         <Typography style={{ marginLeft: "10px" }}>
-          <b>Reviewed by {review.reviewerID}</b>
+          <b>
+            Reviewed by {review.reviewerID}
+            {review.reviewerName ? <>({review.reviewerName})</> : null}
+          </b>
         </Typography>
       </div>
       <Typography style={{ margin: "10px 0px" }}>

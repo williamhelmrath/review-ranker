@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import firebase from "../firebase";
 import useStyles from "../styles";
 
@@ -80,7 +80,7 @@ export default function Main() {
                 component="h2"
                 style={{ padding: "10px 0px" }}
               >
-                Product {doc.asin}
+                Product {doc.asin}: {doc.title ? doc.title : null}
               </Typography>
               <CardActions>
                 <Button

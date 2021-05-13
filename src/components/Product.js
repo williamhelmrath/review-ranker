@@ -42,7 +42,6 @@ export default function Product() {
           reviewText: review.reviewText[0],
         }), // body data type must match "Content-Type" header
       });
-
       const tokenizedReview = await resp.json();
       const oldFreq = { ...user.word_rank };
       for (let word in tokenizedReview.frequencyMap) {
@@ -140,8 +139,18 @@ export default function Product() {
     >
       {user && <WordRankTable />}
       <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
-        Top ranked reviews for {productInfo.asin}
+        Top ranked reviews for {productInfo.asin}:{" "}
+        {productInfo.title ? productInfo.title : null}
       </Typography>
+      {productInfo.description ? (
+        typeof productInfo.description === "string" ? (
+          <Typography>{productInfo.description}</Typography>
+        ) : (
+          productInfo.description.map((desc) => (
+            <Typography key={desc}>{desc}</Typography>
+          ))
+        )
+      ) : null}
       {reviews.map((review) => (
         <Review review={review} tokenize={tokenize} key={review.reviewerID} />
       ))}
