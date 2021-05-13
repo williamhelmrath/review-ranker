@@ -139,8 +139,18 @@ export default function Product() {
     >
       {user && <WordRankTable />}
       <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
-        Top ranked reviews for {productInfo.asin}
+        Top ranked reviews for {productInfo.asin}:{" "}
+        {productInfo.title ? productInfo.title : null}
       </Typography>
+      {productInfo.description ? (
+        typeof productInfo.description === "string" ? (
+          <Typography>{productInfo.description}</Typography>
+        ) : (
+          productInfo.description.map((desc) => (
+            <Typography key={desc}>{desc}</Typography>
+          ))
+        )
+      ) : null}
       {reviews.map((review) => (
         <Review review={review} tokenize={tokenize} key={review.reviewerID} />
       ))}

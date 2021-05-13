@@ -80,7 +80,7 @@ export default function Main() {
                 component="h2"
                 style={{ padding: "10px 0px" }}
               >
-                Product {doc.asin}
+                Product {doc.asin}: {doc.title ? doc.title : null}
               </Typography>
               <CardActions>
                 <Button
