@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import he from "he";
 import firebase from "../firebase";
 import { CircularProgress, Typography } from "@material-ui/core";
 import Review from "./Review";
@@ -126,6 +127,10 @@ export default function Product() {
     );
   }
 
+  const productTitle = productInfo.title
+    ? he.decode(productInfo.title)
+    : `Product ${productInfo.asin}`;
+
   return (
     <div
       style={{
@@ -139,8 +144,7 @@ export default function Product() {
     >
       {user && <WordRankTable />}
       <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
-        Top ranked reviews for {productInfo.asin}:{" "}
-        {productInfo.title ? productInfo.title : null}
+        Top ranked reviews for {productTitle}
       </Typography>
       {productInfo.description ? (
         typeof productInfo.description === "string" ? (

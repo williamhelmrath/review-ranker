@@ -1,19 +1,15 @@
+import React, { useEffect, useState } from "react";
 import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router";
 import firebase from "../firebase";
 import useStyles from "../styles";
+import ProductCard from "./ProductCard";
 
 const db = firebase.firestore();
 
 export default function Main() {
   const classes = useStyles();
-  const history = useHistory();
   const [products, setProducts] = useState(null);
   const [lastKey, setLastKey] = useState("");
 
@@ -72,27 +68,7 @@ export default function Main() {
     <div className={classes.root}>
       <Grid container>
         {products?.map((doc) => (
-          <Grid item xs={6} key={doc.asin} align="center">
-            <Card className={classes.card}>
-              <Typography
-                gutterBottom
-                variant="h5"
-                component="h2"
-                style={{ padding: "10px 0px" }}
-              >
-                Product {doc.asin}: {doc.title ? doc.title : null}
-              </Typography>
-              <CardActions>
-                <Button
-                  onClick={() => history.push(`/products/${doc.asin}`)}
-                  size="small"
-                  color="primary"
-                >
-                  View
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
+          <ProductCard product={doc} key={doc.asin} />
         ))}
       </Grid>
       <Button
