@@ -7,6 +7,8 @@ export default function Review({ review, tokenize }) {
   const { user } = useUserContext();
   const [clicked, setClicked] = useState(false);
 
+  const { reviewerName: name, reviewerID: id, reviewText: text } = review;
+
   const handleClick = () => {
     if (user) {
       setClicked(true);
@@ -16,20 +18,28 @@ export default function Review({ review, tokenize }) {
     }
   };
 
-  return (
-    <div style={{ width: "100%", padding: "5vh" }}>
-      <div style={{ display: "flex" }}>
-        <AccountCircleIcon />{" "}
-        <Typography style={{ marginLeft: "10px" }}>
-          <b>
-            Reviewed by {review.reviewerID}
-            {review.reviewerName ? <>({review.reviewerName})</> : null}
-          </b>
+  const Reviewer = () => {
+    return (
+      <div style={{ display: "flex", alignItems: "baseline" }}>
+        <Typography variant="body1" style={{ marginRight: 8 }}>
+          <b>{name ? name : id}</b>
         </Typography>
+        {name && (
+          <Typography variant="caption" style={{ color: "#444" }}>
+            <b>{id}</b>
+          </Typography>
+        )}
       </div>
-      <Typography style={{ margin: "10px 0px" }}>
-        {review.reviewText}
-      </Typography>
+    );
+  };
+
+  return (
+    <div style={{ width: "100%", padding: "2vh 5vh" }}>
+      <div style={{ display: "flex" }}>
+        <AccountCircleIcon style={{ marginRight: "10px" }} />
+        <Reviewer />
+      </div>
+      <Typography style={{ margin: "10px 0px" }}>{text}</Typography>
       <Button variant="outlined" disabled={clicked} onClick={handleClick}>
         Helpful
       </Button>

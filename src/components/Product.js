@@ -131,6 +131,15 @@ export default function Product() {
     ? he.decode(productInfo.title)
     : `Product ${productInfo.asin}`;
 
+  const Description = () => {
+    if (typeof productInfo.description === "string")
+      return <Typography>{productInfo.description}</Typography>;
+    else
+      return productInfo.description.map((desc) => (
+        <Typography key={desc}>{desc}</Typography>
+      ));
+  };
+
   return (
     <div
       style={{
@@ -143,18 +152,16 @@ export default function Product() {
       }}
     >
       {user && <WordRankTable />}
-      <Typography variant="h3" style={{ alignSelf: "flex-start" }}>
-        Top ranked reviews for {productTitle}
+      <Typography variant="h2" style={{ marginBottom: "4vh" }} align="center">
+        {productTitle}
       </Typography>
-      {productInfo.description ? (
-        typeof productInfo.description === "string" ? (
-          <Typography>{productInfo.description}</Typography>
-        ) : (
-          productInfo.description.map((desc) => (
-            <Typography key={desc}>{desc}</Typography>
-          ))
-        )
-      ) : null}
+      {productInfo.description && <Description />}
+      <Typography
+        variant="h4"
+        style={{ marginTop: "4vh", alignSelf: "flex-start" }}
+      >
+        Top ranked reviews
+      </Typography>
       {reviews.map((review) => (
         <Review review={review} tokenize={tokenize} key={review.reviewerID} />
       ))}
